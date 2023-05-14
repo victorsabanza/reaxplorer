@@ -1,0 +1,3 @@
+rdkit-pypi
+gdown
+OpenNMT-py==2.2.0

@@ -5,7 +5,13 @@ import requests
 
 #download mcule file
 def download_mcule_molecules():
+
     link = 'https://mcule.s3.amazonaws.com/database/mcule_purchasable_in_stock_230514.smi.gz'
+
+    #if molecules file already exists, do not download it again
+    if os.path.exists('data/molecules.smi'):
+        print('Molecules file already exists')
+        return
 
     print('Downloading mcule purchasable molecules from mcule database')
 
