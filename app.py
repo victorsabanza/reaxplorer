@@ -50,6 +50,8 @@ with tab2:
         img = Draw.ReactionToImage(rxn)
         st.image(img, use_column_width=True)
     
+    else:
+        pass
 
 # #read the molecules
 # molecules = Chem.SmilesMolSupplier('data/molecules.smi', delimiter='\t', titleLine=False,
