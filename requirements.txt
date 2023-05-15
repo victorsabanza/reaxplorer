@@ -1,3 +1,5 @@
-rdkit-pypi
-gdown
+rdkit-pypi==2022.9.5 
+gdown==4.7.1 
 OpenNMT-py==2.2.0
+streamlit_ketcher==0.0.1 
+streamlit==1.22.0
