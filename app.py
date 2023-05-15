@@ -1,6 +1,7 @@
 '''Streamlit app to deploy the Reaxplorer'''
 import streamlit as st
 from rdkit import Chem
+from rdkit.Chem import Draw
 from model import *
 from utils import download_model_uspto480k, download_mcule_molecules
 from streamlit_ketcher import st_ketcher

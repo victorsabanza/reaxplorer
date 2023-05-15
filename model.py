@@ -4,7 +4,6 @@ import re
 import subprocess
 from rdkit.Chem.AllChem import ReactionFromSmarts
 from rdkit.Chem import MolFromSmiles, MolToSmiles
-from rdkit.Chem import Draw
 
 def canonicalize_smiles(smiles):
   return MolToSmiles(MolFromSmiles(smiles))
