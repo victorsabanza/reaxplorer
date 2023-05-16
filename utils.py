@@ -2,6 +2,8 @@
 import os 
 import gdown
 import requests
+import random
+from rdkit import Chem
 
 #download mcule file
 def download_mcule_molecules():
@@ -18,14 +20,15 @@ def download_mcule_molecules():
     #download file from the internet using previous link
     r = requests.get(link, allow_redirects=True)
 
+    #create 'data' folder if it does not exist
+    if not os.path.exists('data'):
+        os.makedirs('data')
+
     #save file in the data folder
     open('data/mcule_purchasable_in_stock_230514.smi.gz', 'wb').write(r.content)
 
     #unzip file
     os.system('gunzip data/mcule_purchasable_in_stock_230514.smi.gz')
-
-    # #remove zip file
-    # os.system('rm data/mcule_purchasable_in_stock_230514.smi.gz')
 
     #rename file
     os.system('mv data/mcule_purchasable_in_stock_230514.smi data/molecules.smi')
@@ -49,7 +52,22 @@ def download_model_uspto480k():
         print(f"{target_path} already exists")
 
 
+def take_random_subset_mols(n, seed):
 
-if __name__ == "__main__":
-    download_mcule_molecules()
-    download_model_uspto480k()
+    #read the molecules
+    with open('data/molecules.smi', 'r') as f:
+        molecules = f.readlines()
+        random.seed(seed)
+        mols = random.sample(molecules, n)
+        sample = [i.split('\t')[0] for i in mols]
+
+        #get list of smiles that can be read by rdkit
+        mols = [mol for mol in sample if Chem.MolFromSmiles(mol)]
+
+    return mols
+
+if __name__ == '__main__':
+
+    mols = take_random_subset_mols(10)
+
+    print(mols)
