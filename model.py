@@ -24,10 +24,45 @@ def smiles_to_txt(smiles):
 
 
 def smiles_from_txt():
+  #read predicted SMILES from .txt file and return as a list
   with open('predictions.txt', 'r') as f:
-    s = f.read().replace(' ', '').replace('\n', '')
+    s = f.read().replace(' ', '').split('\n')
     return s
 
 def translate():
     subprocess.call(["onmt_translate -model models/USPTO480k_model_step_400000.pt -src input.txt -output predictions.txt  -n_best 1 -beam_size 5 -max_length 300 -batch_size 64"],
                         shell=True)
+
+
+def react_multiproducts(mol, smiles):
+  '''React a single molecule with a list of SMILES using the Transformer
+     and return a list of products.
+     
+     Args:
+       mol: a SMILES string
+       smiles: a list of SMILES strings
+     Returns:
+       final_reactions: a list of reaction SMILES strings'''
+  
+  #canonicalize the input SMILES 
+  pairs = [canonicalize_smiles(mol) + '.' + canonicalize_smiles(s) for s in smiles]
+  #tokenize the input SMILES
+  tokenized = [smiles_tokenizer(p) for p in pairs]
+  #join the tokenized SMILES with a newline character
+  tokenized = '\n'.join(tokenized)
+  #write the tokenized SMILES to a .txt file
+  smiles_to_txt(tokenized)
+  #translate the tokenized SMILES to product SMILES
+  translate()
+  #read the product SMILES from the .txt file
+  predicted = smiles_from_txt()[:-1]
+  #combine pairs and predicted SMILES
+  final_reactions = [pairs[i] + '>>' + predicted[i] for i in range(len(predicted))]
+
+  return final_reactions
+
+if __name__ == '__main__':
+    
+    smi = 'CCCCC.CCC'
+
+    print(react_multiproducts('CC', ['SCCC', 'CCCCCCC', 'c1ccccc1']))

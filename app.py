@@ -13,7 +13,7 @@ st.title('Reaxplorer')
 st.write('''#### Explore the chemical space of purchasable molecules using the molecular transformer.''')
 
 n_mols = st.sidebar.number_input('Number of molecules from catalogue', min_value=1, 
-                        max_value=100, value=10, step=1, 
+                        max_value=1000, value=10, step=1, 
                         help='Number of molecules to select from Mcule database')
 random_seed = st.sidebar.number_input('Random seed', min_value=1, 
                         max_value=100, value=33, step=1,
@@ -22,6 +22,10 @@ random_seed = st.sidebar.number_input('Random seed', min_value=1,
 filtering_criteria = st.sidebar.selectbox('Filtering criteria', 
                         ['QED', 'MW', 'LogP'], 
                         help='Scoring functions for product molecules')
+
+n_products = st.sidebar.number_input('Number of products', min_value=1, 
+                        max_value=100, value=5, step=1, 
+                        help='Number of products to display')
 
 #download the model
 download_model_uspto480k()
@@ -44,24 +48,21 @@ with tab1:
     mols = take_random_subset_mols(n_mols, random_seed)
 
     #display molecules as rdkit mol objects
-    mols = [Chem.MolFromSmiles(mol) for mol in mols]
+    mols_img = [Chem.MolFromSmiles(mol) for mol in mols]
 
     #display images of molecules
-    img = Draw.MolsToGridImage(mols, molsPerRow=5, subImgSize=(200, 200))
+    img = Draw.MolsToGridImage(mols_img, molsPerRow=5, subImgSize=(200, 200))
     st.image(img, use_column_width=True)
 
     if molecule:
-        tokenized = smiles_tokenizer(canonicalize_smiles(molecule))
-        smiles_to_txt(tokenized)
-        translate()
-        predicted = smiles_from_txt()
+        predicted = react_multiproducts(molecule, mols)
 
 
 with tab2:
     st.write(f'Top {n_mols} reactions''')
     
     if predicted:
-        rxn = molecule + '>>' + predicted
+        rxn = predicted[0]
         rxn = ReactionFromSmarts(rxn)
         img = Draw.ReactionToImage(rxn)
         st.image(img, use_column_width=True)
