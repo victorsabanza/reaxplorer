@@ -1,16 +1,22 @@
 '''Streamlit app to deploy the Reaxplorer'''
 import streamlit as st
 from rdkit import Chem
+from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from model import *
-from utils import download_model_uspto480k, download_mcule_molecules, take_random_subset_mols
+from utils import download_model_uspto480k, download_mcule_molecules, take_random_subset_mols, check_rxn
 from streamlit_ketcher import st_ketcher
 from rdkit.Chem.QED import qed
 
 #start the app
 st.title('Reaxplorer')
 
-st.write('''#### Explore the chemical space of purchasable molecules using the molecular transformer.''')
+st.write('''#### Explore the chemical space of purchasable molecules using the molecular transformer.
+
+This is a simple app to explore a given molecule chemical space from purchasable molecules extracted
+from the [Mcule database](https://mcule.com/database/). Take a random subset of molecules from the database
+and predict the reactions with the molecule of interest using the transformer. Then filter the reactions
+based on the selected product score and display the top reactions''')
 
 n_mols = st.sidebar.number_input('Number of molecules from catalogue', min_value=1, 
                         max_value=500, value=10, step=1, 
@@ -44,10 +50,6 @@ with tab1:
     and click **Apply**''')
     molecule = st_ketcher(value='', key='molecule')
 
-    if filtering_criteria == 'substructure':
-        st.write('''### Draw substructures to match in products''')
-        substructure = st_ketcher(value='', key='substructure')
-
     #read only a random subset of n_mols molecules from the .smi file
     mols = take_random_subset_mols(n_mols, random_seed)
 
@@ -66,7 +68,9 @@ with tab2:
 
     if start:
         predicted = react_multiproducts(molecule, mols)
-        top_reactions, top_scores = score_reactions(predicted, n_products, filtering_criteria)
+        #filter non valid reactions
+        predicted_filt = [rxn for rxn in predicted if check_rxn(rxn)]
+        top_reactions, top_scores = score_reactions(predicted_filt, n_products, filtering_criteria)
         
         #return top n products
         st.write('''Top reactions''')

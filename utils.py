@@ -4,6 +4,7 @@ import gdown
 import requests
 import random
 from rdkit import Chem
+from rdkit.Chem import AllChem
 
 #download mcule file
 def download_mcule_molecules():
@@ -65,3 +66,10 @@ def take_random_subset_mols(n, seed):
         mols = [mol for mol in sample if Chem.MolFromSmiles(mol)]
 
     return mols
+
+def check_rxn(rxn):
+    try:
+        AllChem.ReactionFromSmarts(rxn)
+        return True
+    except:
+        return False
