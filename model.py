@@ -2,8 +2,12 @@
 
 import re
 import subprocess
+from rdkit import Chem
 from rdkit.Chem.AllChem import ReactionFromSmarts
 from rdkit.Chem import MolFromSmiles, MolToSmiles
+from rdkit.Chem.QED import qed
+#import logp from rdkit
+from rdkit.Chem.Crippen import MolLogP
 
 def canonicalize_smiles(smiles):
   return MolToSmiles(MolFromSmiles(smiles))
@@ -61,8 +65,32 @@ def react_multiproducts(mol, smiles):
 
   return final_reactions
 
+
+def score_reactions(predictions, top_n,  criterion='QED'):
+  '''Score reactions according to selected criterion
+  
+  '''
+  #get product SMILES of predictions and get indices of the top-n based on criterion
+  products = [Chem.MolFromSmiles(p.split('>>')[1]) for p in predictions]
+  
+  if criterion == 'QED':
+    scores = [round(qed(p),3) for p in products if p is not None]
+  elif criterion == 'LogP':
+    scores = [round(MolLogP(p), 3) for p in products if p is not None]
+  
+  top_n_idx = sorted(range(len(scores)), key=lambda i: scores[i])[-top_n:]
+  #invert top_n_idx to get descending order
+  top_n_idx = top_n_idx[::-1]
+  top_n_scores = [scores[i] for i in top_n_idx]
+  top_n_predictions = [predictions[i] for i in top_n_idx]
+
+  return top_n_predictions, top_n_scores
+
+
 if __name__ == '__main__':
     
     smi = 'CCCCC.CCC'
 
-    print(react_multiproducts('CC', ['SCCC', 'CCCCCCC', 'c1ccccc1']))
+    p = react_multiproducts('CC', ['SCCC', 'CCCCCCC', 'c1ccccc1', 'n1cccnc1'])
+
+    print(score_reactions(p, 3))

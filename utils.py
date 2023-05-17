@@ -65,9 +65,3 @@ def take_random_subset_mols(n, seed):
         mols = [mol for mol in sample if Chem.MolFromSmiles(mol)]
 
     return mols
-
-if __name__ == '__main__':
-
-    mols = take_random_subset_mols(10)
-
-    print(mols)
