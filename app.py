@@ -16,7 +16,9 @@ st.write('''#### Explore the chemical space of purchasable molecules using the m
 This is a simple app to explore a given molecule chemical space from purchasable molecules extracted
 from the [Mcule database](https://mcule.com/database/). Take a random subset of molecules from the database
 and predict the reactions with the molecule of interest using the transformer. Then filter the reactions
-based on the selected product score and display the top reactions''')
+based on the selected product score and display the top reactions
+
+''')
 
 n_mols = st.sidebar.number_input('Number of molecules from catalogue', min_value=1, 
                         max_value=500, value=10, step=1, 
